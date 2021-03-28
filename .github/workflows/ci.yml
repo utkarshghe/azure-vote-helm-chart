@@ -1,0 +1,38 @@
+name: ci
+
+on: 
+  workflow_dispatch:
+
+env:
+  HELM_EXPERIMENTAL_OCI: 1
+  HELM_VERSION_TO_INSTALL: 3.5.0
+  ACR_NAME: acrdemoutkarsh
+  ACR_REPO_NAME: helmdemo/vote-app
+
+jobs:
+  build:
+    name: publish acr
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v2
+        name: checkout repo
+      
+      - name: install helm
+        uses: Azure/setup-helm@v1
+        with:
+          # Version of helm
+          version: ${{ env.HELM_VERSION_TO_INSTALL }} # default is latest
+      
+      - name: login to acr using helm
+        run: |
+          helm registry login ${{ env.ACR_NAME }}.azurecr.io --username ${{ secrets.ACR_PUSH_USER }} --password ${{ secrets.ACR_PUSH_TOKEN }}
+
+      - name: save helm chart to local registry
+        run: |
+          helm chart save ${{ env.GITHUB_WORKSPACE }}/src/azure-vote-helm-chart/${{ env.ACR_NAME }}.azurecr.io/${{ env.ACR_REPO_NAME }}:latest
+      
+      - name: publish chart to acr
+        run: |
+          helm chart push ${{ env.ACR_NAME }}.azurecr.io/${{ env.ACR_REPO_NAME }}:latest
+
