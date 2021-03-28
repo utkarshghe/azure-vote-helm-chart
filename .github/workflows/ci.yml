@@ -30,7 +30,7 @@ jobs:
 
       - name: save helm chart to local registry
         run: |
-          helm chart save ${{ env.GITHUB_WORKSPACE }}/src/azure-vote-helm-chart/${{ env.ACR_NAME }}.azurecr.io/${{ env.ACR_REPO_NAME }}:latest
+          helm chart save ${{ env.GITHUB_WORKSPACE }}/src/azure-vote-helm-chart/ ${{ env.ACR_NAME }}.azurecr.io/${{ env.ACR_REPO_NAME }}:latest
       
       - name: publish chart to acr
         run: |
